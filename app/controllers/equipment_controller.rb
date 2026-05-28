@@ -1,5 +1,5 @@
 class EquipmentController < ApplicationController
-  before_action :set_equipment, only: [:show, :update, :destroy]
+  before_action :set_equipment, only: [ :show, :update, :destroy ]
 
   # GET /equipment
   def index
