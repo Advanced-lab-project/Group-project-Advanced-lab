@@ -1,5 +1,5 @@
 class MaintenanceRecordsController < ApplicationController
-  before_action :set_record, only: [:show, :update, :destroy]
+  before_action :set_record, only: [ :show, :update, :destroy ]
 
   # GET /maintenance_records
   def index

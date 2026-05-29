@@ -8,6 +8,6 @@ class CreateMaintenanceRecords < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :maintenance_records, [:equipment_id, :performed_at]
+    add_index :maintenance_records, [ :equipment_id, :performed_at ]
   end
 end

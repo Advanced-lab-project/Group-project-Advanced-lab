@@ -26,10 +26,9 @@ class Equipment < ApplicationRecord
 
   def name_must_contain_a_letter
     return if name.blank?
-    
+
     unless name.match?(/[a-zA-Z]/)
       errors.add(:name, "must contain at least one letter")
     end
   end
-
 end
