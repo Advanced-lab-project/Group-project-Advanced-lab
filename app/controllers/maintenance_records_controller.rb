@@ -1,10 +1,7 @@
-# Task 5 — owned by @sina
 class MaintenanceRecordsController < ApplicationController
   before_action :set_record, only: [:show, :update, :destroy]
 
   # GET /maintenance_records
-  # Optional filter: ?equipment_id=3
-  # Ordered by performed_at descending. Includes equipment name.
   def index
     records = MaintenanceRecord.includes(:equipment).order(performed_at: :desc)
     records = records.where(equipment_id: params[:equipment_id]) if params[:equipment_id].present?
@@ -13,7 +10,6 @@ class MaintenanceRecordsController < ApplicationController
   end
 
   # GET /maintenance_records/:id
-  # Includes equipment name
   def show
     render json: {
       id:             @record.id,

@@ -1,10 +1,11 @@
 class Equipment < ApplicationRecord
   belongs_to :category
   has_many :maintenance_records, dependent: :destroy
+
   VALID_STATUSES = %w[available in_use maintenance].freeze
   SERIAL_FORMAT  = /\A[A-Z]{3}-\d{3}\z/
 
-  validates :name,          presence: true, length: { minimum: 3 }
+  validates :name,          presence: true
   validates :serial_number, presence: true,
                             uniqueness: true,
                             format: {
@@ -18,15 +19,17 @@ class Equipment < ApplicationRecord
                             }
   validates :category_id,   presence: true
 
+  validates :name, length: { minimum: 3 }, allow_blank: false
   validate :name_must_contain_a_letter
 
   private
 
   def name_must_contain_a_letter
     return if name.blank?
+    
     unless name.match?(/[a-zA-Z]/)
       errors.add(:name, "must contain at least one letter")
     end
   end
 
-   end
+end
