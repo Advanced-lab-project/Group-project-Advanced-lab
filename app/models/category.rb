@@ -1,3 +1,6 @@
 class Category < ApplicationRecord
   has_many :equipment, dependent: :restrict_with_error
-  end
+  validates :name, presence: true,
+                   uniqueness: { case_sensitive: false },
+                   length: { minimum: 3 }
+end
