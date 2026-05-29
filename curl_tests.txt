@@ -1,0 +1,255 @@
+ TASK 3 — CATEGORIES (all 5 actions)
+# ==============================================================
+
+# GET /categories — list all, ordered by name
+curl -s http://localhost:3000/categories | jq
+# Expected 200:
+# [
+#   { "id": 4, "name": "Electronics", ... },
+#   { "id": 3, "name": "Networking", ... },
+#   { "id": 2, "name": "Optics", ... },
+#   { "id": 1, "name": "Computing", ... }
+# ]
+
+# GET /categories/:id — show one with equipment count
+curl -s http://localhost:3000/categories/1 | jq
+# Expected 200:
+# {
+#   "id": 1,
+#   "name": "Computing",
+#   "equipment_count": 2,
+#   "created_at": "...",
+#   "updated_at": "..."
+# }
+
+# POST /categories — create
+curl -s -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Biology"}}' | jq
+# Expected 201:
+# { "id": 5, "name": "Biology", ... }
+
+# PATCH /categories/:id — update
+curl -s -X PATCH http://localhost:3000/categories/5 \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Life Sciences"}}' | jq
+# Expected 200:
+# { "id": 5, "name": "Life Sciences", ... }
+
+# DELETE /categories/:id — success (no equipment)
+curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:3000/categories/5
+# Expected: 204
+
+# DELETE /categories/:id — conflict (has equipment)
+curl -s -X DELETE http://localhost:3000/categories/1 | jq
+# Expected 409:
+# { "error": "Cannot delete category. 2 equipment items still belong to it." }
+
+
+# ==============================================================
+# TASK 4 — EQUIPMENT (all 5 actions)
+# ==============================================================
+
+# GET /equipment — list all with category name
+curl -s http://localhost:3000/equipment | jq
+# Expected 200: array of 8 items, each with category_name, ordered by name
+
+# GET /equipment?status=available — filter by status
+curl -s "http://localhost:3000/equipment?status=available" | jq
+# Expected 200: only equipment where status = "available"
+
+# GET /equipment?status=maintenance — filter by status
+curl -s "http://localhost:3000/equipment?status=maintenance" | jq
+# Expected 200: only equipment under maintenance (Binocular Microscope, Oscilloscope)
+
+# GET /equipment?status=in_use — filter by status
+curl -s "http://localhost:3000/equipment?status=in_use" | jq
+# Expected 200: MacBook Pro, Network Switch 24P
+
+# GET /equipment/:id — show one with category + maintenance records
+curl -s http://localhost:3000/equipment/3 | jq
+# Expected 200:
+# {
+#   "id": 3,
+#   "name": "Binocular Microscope",
+#   "serial_number": "MIC-001",
+#   "status": "maintenance",
+#   "category": { "id": 2, "name": "Optics" },
+#   "maintenance_records": [ ... 2 records, newest first ... ]
+# }
+
+# POST /equipment — create
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "Raspberry Pi Kit", "serial_number": "RPI-001", "status": "available", "category_id": 1}}' | jq
+# Expected 201: new equipment object
+
+# PATCH /equipment/:id — update status
+curl -s -X PATCH http://localhost:3000/equipment/1 \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"status": "in_use"}}' | jq
+# Expected 200: updated equipment
+
+# DELETE /equipment/:id — delete (cascades maintenance records)
+curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:3000/equipment/9
+# Expected: 204
+
+
+# ==============================================================
+# TASK 5 — MAINTENANCE RECORDS (all 5 actions)
+# ==============================================================
+
+# GET /maintenance_records — list all, newest first, with equipment name
+curl -s http://localhost:3000/maintenance_records | jq
+# Expected 200: 5 records ordered by performed_at desc, each with equipment_name
+
+# GET /maintenance_records?equipment_id=3 — filter by equipment
+curl -s "http://localhost:3000/maintenance_records?equipment_id=3" | jq
+# Expected 200: 2 records (both for Binocular Microscope, equipment id 3)
+
+# GET /maintenance_records/:id — show one with equipment name
+curl -s http://localhost:3000/maintenance_records/1 | jq
+# Expected 200:
+# {
+#   "id": 1,
+#   "description": "Replaced thermal paste and cleaned fans",
+#   "performed_at": "...",
+#   "equipment_id": 1,
+#   "equipment_name": "Dell Latitude Laptop"
+# }
+
+# POST /maintenance_records — create
+curl -s -X POST http://localhost:3000/maintenance_records \
+  -H "Content-Type: application/json" \
+  -d '{"maintenance_record": {"description": "Replaced SSD and reinstalled OS", "performed_at": "2024-03-10T09:00:00", "equipment_id": 2}}' | jq
+# Expected 201: new maintenance record
+
+# PATCH /maintenance_records/:id — update
+curl -s -X PATCH http://localhost:3000/maintenance_records/1 \
+  -H "Content-Type: application/json" \
+  -d '{"maintenance_record": {"description": "Replaced thermal paste, cleaned fans, updated BIOS"}}' | jq
+# Expected 200: updated record
+
+# DELETE /maintenance_records/:id
+curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:3000/maintenance_records/6
+# Expected: 204
+
+
+# ==============================================================
+# TASK 6 — BUSINESS RULES (test each rule with curl)
+# ==============================================================
+
+# Rule 1 — serial number format: lowercase rejected
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "Test Laptop", "serial_number": "lap-001", "status": "available", "category_id": 1}}' | jq
+# Expected 422:
+# { "errors": ["Serial number must match format XXX-NNN (e.g. LAP-001)"] }
+
+# Rule 1 — serial number format: missing dash
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "Test Laptop", "serial_number": "LAP001", "status": "available", "category_id": 1}}' | jq
+# Expected 422: same error
+
+# Rule 2 — performed_at cannot be in the future
+curl -s -X POST http://localhost:3000/maintenance_records \
+  -H "Content-Type: application/json" \
+  -d '{"maintenance_record": {"description": "Future service", "performed_at": "2099-01-01T00:00:00", "equipment_id": 1}}' | jq
+# Expected 422:
+# { "errors": ["Performed at cannot be in the future"] }
+
+# Rule 3 — category name too short (under 3 characters)
+curl -s -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "AB"}}' | jq
+# Expected 422:
+# { "errors": ["Name is too short (minimum is 3 characters)"] }
+
+# Rule 3 — single character name
+curl -s -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "A"}}' | jq
+# Expected 422: same error
+
+# Rule 4 — equipment name all numbers (no letters)
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "123", "serial_number": "TST-999", "status": "available", "category_id": 1}}' | jq
+# Expected 422:
+# { "errors": ["Name must contain at least one letter"] }
+
+# Rule 4 — equipment name all symbols
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "---", "serial_number": "TST-998", "status": "available", "category_id": 1}}' | jq
+# Expected 422: same error
+
+
+# ==============================================================
+# TASK 7 — EDGE CASES (all 10 required scenarios)
+# ==============================================================
+
+# 1. Create equipment with non-existent category_id (999)
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "Ghost Machine", "serial_number": "GHO-001", "status": "available", "category_id": 999}}' | jq
+# Expected 422:
+# { "errors": ["Category must exist"] }
+
+# 2. Create equipment with duplicate serial number
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "Another Laptop", "serial_number": "LAP-001", "status": "available", "category_id": 1}}' | jq
+# Expected 422:
+# { "errors": ["Serial number has already been taken"] }
+
+# 3. Create equipment with invalid status "broken"
+curl -s -X POST http://localhost:3000/equipment \
+  -H "Content-Type: application/json" \
+  -d '{"equipment": {"name": "Broken Thing", "serial_number": "BRK-001", "status": "broken", "category_id": 1}}' | jq
+# Expected 422:
+# { "errors": ["Status broken is not a valid status. Must be available, in_use, or maintenance"] }
+
+# 4. Create category with duplicate name
+curl -s -X POST http://localhost:3000/categories \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Computing"}}' | jq
+# Expected 422:
+# { "errors": ["Name has already been taken"] }
+
+# 5. Create maintenance record with non-existent equipment_id (999)
+curl -s -X POST http://localhost:3000/maintenance_records \
+  -H "Content-Type: application/json" \
+  -d '{"maintenance_record": {"description": "Ghost fix", "performed_at": "2024-01-01T10:00:00", "equipment_id": 999}}' | jq
+# Expected 422:
+# { "errors": ["Equipment must exist"] }
+
+# 6. DELETE /categories/1 when equipment belongs to it
+curl -s -X DELETE http://localhost:3000/categories/1 | jq
+# Expected 409:
+# { "error": "Cannot delete category. 2 equipment items still belong to it." }
+
+# 7. GET /categories/999 — record not found
+curl -s http://localhost:3000/categories/999 | jq
+# Expected 404:
+# { "error": "Category not found" }
+
+# 8. GET /equipment/999 — record not found
+curl -s http://localhost:3000/equipment/999 | jq
+# Expected 404:
+# { "error": "Equipment not found" }
+
+# 9. PATCH /categories/999 — record not found
+curl -s -X PATCH http://localhost:3000/categories/999 \
+  -H "Content-Type: application/json" \
+  -d '{"category": {"name": "Ghost"}}' | jq
+# Expected 404:
+# { "error": "Category not found" }
+
+# 10. POST /maintenance_records with future performed_at
+curl -s -X POST http://localhost:3000/maintenance_records \
+  -H "Content-Type: application/json" \
+  -d '{"maintenance_record": {"description": "Tomorrow service", "performed_at": "2099-06-15T08:00:00", "equipment_id": 1}}' | jq
+# Expected 422:
+# { "errors": ["Performed at cannot be in the future"] }
