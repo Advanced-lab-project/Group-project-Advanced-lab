@@ -1,3 +1,6 @@
+puts "Clearing existing data..."
+MaintenanceRecord.destroy_all
+Equipment.destroy_all
 Category.destroy_all
 
 puts "Seeding categories..."
@@ -6,10 +9,6 @@ optics      = Category.create!(name: "Optics")
 networking  = Category.create!(name: "Networking")
 electronics = Category.create!(name: "Electronics")
 
-puts "  Categories:          #{Category.count}"
-
-MaintenanceRecord.destroy_all
-Equipment.destroy_all
 puts "Seeding equipment..."
 laptop1 = Equipment.create!(
   name: "Dell Latitude Laptop",
@@ -86,5 +85,9 @@ MaintenanceRecord.create!(
   performed_at: 1.day.ago,
   equipment: osc1
 )
+
+puts ""
+puts "Seed complete!"
+puts "  Categories:          #{Category.count}"
 puts "  Equipment:           #{Equipment.count}"
 puts "  Maintenance Records: #{MaintenanceRecord.count}"

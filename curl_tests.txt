@@ -1,5 +1,3 @@
- TASK 3 — CATEGORIES (all 5 actions)
-# ==============================================================
 
 # GET /categories — list all, ordered by name
 curl -s http://localhost:3000/categories | jq
