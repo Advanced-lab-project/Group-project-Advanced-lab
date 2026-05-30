@@ -38,6 +38,9 @@ http://localhost:3000
 -
 
 # Models
+-Category
+-Equipment
+-MaintenanceRecord
 
 ## Category
 
