@@ -107,19 +107,19 @@ http://localhost:3000
 
 | Task                 | Owner       | Branch             | Status      |
 | -------------------- | ----------- | ------------------ | ----------- |
-| 1 - Data model       | @merryoon   | task-1-model       | In Progress |
-| 2 - Seed data        | @veyron44   | task-2-seeds       | In Progress |
-| 3 - Category CRUD    | @lyyzw-cqzz | task-3-categories  | In Progress |
-| 4 - Equipment CRUD   | @osaama-a   | task-4-equipment   | In Progress |
-| 5 - Maintenance CRUD | @lyyzw-cqzz | task-5-maintenance | Not Started |
-| 6 - Business rules   | @veyron44   | task-6-rules       | Not Started |
-| 7 - Edge cases       | @merryoon   | task-7-edge-cases  | Not Started |
+| 1 - Data model       | @merryoon   | task-1-model       | DONE        |
+| 2 - Seed data        | @veyron44   | task-2-seeds       |  DONE        |
+| 3 - Category CRUD    | @lyyzw-cqzz | task-3-categories  |  DONE        |
+| 4 - Equipment CRUD   | @osaama-a   | task-4-equipment   |  DONE        |
+| 5 - Maintenance CRUD | @lyyzw-cqzz | task-5-maintenance |  DONE        |
+| 6 - Business rules   | @veyron44   | task-6-rules       |  DONE        |
+| 7 - Edge cases       | @merryoon   | task-7-edge-cases  |  DONE        |
 
 ---
 
 # Team Members
 
-- Rahel — @veyron44
-- Usama — @osaama-a
-- Meron — @merryoon
-- Mariamsina — @lyyzw-cqzz
+- Rahel Gebeyhu — @veyron44
+- Usama Ahmed— @osaama-a
+- Meron Mekonnen — @merryoon
+- Mariamsina Alebachew — @lyyzw-cqzz
