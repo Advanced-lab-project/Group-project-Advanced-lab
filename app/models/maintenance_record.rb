@@ -14,7 +14,4 @@ class MaintenanceRecord < ApplicationRecord
       errors.add(:performed_at, "cannot be in the future")
     end
   end
-
-
 end
-
