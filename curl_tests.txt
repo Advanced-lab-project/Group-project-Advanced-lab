@@ -1,4 +1,9 @@
 
+ TASK 3 — CATEGORIES (all 5 actions)
+
+
+
+
 # GET /categories — list all, ordered by name
 curl -s http://localhost:3000/categories | jq
 # Expected 200:
@@ -44,9 +49,9 @@ curl -s -X DELETE http://localhost:3000/categories/1 | jq
 # { "error": "Cannot delete category. 2 equipment items still belong to it." }
 
 
-# ==============================================================
+
 # TASK 4 — EQUIPMENT (all 5 actions)
-# ==============================================================
+
 
 # GET /equipment — list all with category name
 curl -s http://localhost:3000/equipment | jq
@@ -93,9 +98,9 @@ curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:3000/equipment
 # Expected: 204
 
 
-# ==============================================================
+
 # TASK 5 — MAINTENANCE RECORDS (all 5 actions)
-# ==============================================================
+
 
 # GET /maintenance_records — list all, newest first, with equipment name
 curl -s http://localhost:3000/maintenance_records | jq
@@ -133,9 +138,9 @@ curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:3000/maintenan
 # Expected: 204
 
 
-# ==============================================================
+
 # TASK 6 — BUSINESS RULES (test each rule with curl)
-# ==============================================================
+
 
 # Rule 1 — serial number format: lowercase rejected
 curl -s -X POST http://localhost:3000/equipment \
@@ -184,9 +189,9 @@ curl -s -X POST http://localhost:3000/equipment \
 # Expected 422: same error
 
 
-# ==============================================================
+
 # TASK 7 — EDGE CASES (all 10 required scenarios)
-# ==============================================================
+
 
 # 1. Create equipment with non-existent category_id (999)
 curl -s -X POST http://localhost:3000/equipment \
